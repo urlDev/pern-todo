@@ -7,7 +7,7 @@ const pool = new Pool({
   host: 'localhost',
   port: 5432,
   // database name we picked
-  database: 'perntodo',
+  database: 'pernusertodo',
 });
 
 module.exports = pool;
