@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/db');
+const passport = require('passport');
 const bcrypt = require('bcryptjs');
 
 router.post('/profile/register', async (req, res) => {
@@ -20,42 +21,41 @@ router.post('/profile/register', async (req, res) => {
   }
 });
 
-router.post('/profile/login', async (req, res) => {
+router.post(
+  '/profile/login',
+  passport.authenticate('local'),
+  async (req, res) => {
+    try {
+      const user = req.user;
+
+      if (!user) {
+        return res.send('Could not find user');
+      }
+
+      req.logIn(user, () => {
+        return res.send(user);
+      });
+    } catch (error) {
+      return res.send(error);
+    }
+  }
+);
+
+router.get('/profile', passport.authenticate('local'), async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await pool.query('SELECT * FROM users WHERE email = $1', [
-      email,
+    const user = await pool.query('SELECT * FROM users WHERE user_id = $1', [
+      req.user.id,
     ]);
 
-    if (!user) {
-      return res.send({ error: 'Could not find user' });
-    }
-
-    const isValid = await bcrypt.compare(password, user.rows[0].password);
-
-    if (!isValid) {
-      return res.send({ error: 'Could not login' });
-    }
-
-    return res.send(user.rows[0]);
+    return res.json(user);
   } catch (error) {
-    return res.send(error);
+    return res.json(error);
   }
 });
 
-router.get('/profile', async (req, res) => {
+router.put('/profile', passport.authenticate('local'), async (req, res) => {
   try {
-    const user = await pool.query('SELECT * FROM users');
-
-    return res.json(user.rows);
-  } catch (error) {
-    return res.json(error.message);
-  }
-});
-
-router.put('/profile/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
+    const { id } = req.user;
     const { username, email, password } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 8);
@@ -71,9 +71,9 @@ router.put('/profile/:id', async (req, res) => {
   }
 });
 
-router.delete('/profile/:id', async (req, res) => {
+router.delete('/profile', passport.authenticate('local'), async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
     // Deleting all todos belongs to this user
     await pool.query('DELETE FROM todo WHERE user_id = $1', [id]);
 
