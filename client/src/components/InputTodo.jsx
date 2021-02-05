@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 
 const InputTodo = () => {
   const [description, setDescription] = React.useState('');
@@ -7,12 +8,13 @@ const InputTodo = () => {
     e.preventDefault();
 
     try {
-      const body = { description };
-      await fetch('http://localhost:5000/todos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const response = await axios.post(
+        'http://localhost:5000/todos',
+        { description },
+        { withCredentials: true }
+      );
+
+      console.log(response);
 
       setDescription('');
     } catch (error) {

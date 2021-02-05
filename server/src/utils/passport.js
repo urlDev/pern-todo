@@ -12,7 +12,6 @@ module.exports = (passport) => {
             'SELECT * FROM users WHERE email = $1',
             [email]
           );
-
           const isValid = await bcrypt.compare(password, user.rows[0].password);
 
           if (!isValid) {
@@ -31,9 +30,14 @@ module.exports = (passport) => {
     cb(null, user.user_id);
   });
 
-  passport.deserializeUser((id, cb) => {
-    pool.query('SELECT * FROM users WHERE user_id = $1', [id], (err, user) => {
-      cb(err, user);
-    });
+  passport.deserializeUser(async (id, cb) => {
+    try {
+      const user = await pool.query('SELECT * FROM users WHERE user_id = $1', [
+        id,
+      ]);
+      return cb(null, user.rows[0]);
+    } catch (error) {
+      return cb(error);
+    }
   });
 };

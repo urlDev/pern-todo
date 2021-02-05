@@ -26,14 +26,12 @@ router.post(
   passport.authenticate('local'),
   async (req, res) => {
     try {
-      const user = req.user;
-
-      if (!user) {
+      if (!req.user) {
         return res.send('Could not find user');
       }
 
-      req.logIn(user, () => {
-        return res.send(user);
+      req.login(req.user, () => {
+        return res.send(req.user);
       });
     } catch (error) {
       return res.send(error);
@@ -41,16 +39,25 @@ router.post(
   }
 );
 
-router.get('/profile', passport.authenticate('local'), async (req, res) => {
+router.get('/profile', async (req, res) => {
   try {
-    const user = await pool.query('SELECT * FROM users WHERE user_id = $1', [
-      req.user.id,
-    ]);
+    const { username, email } = req.user;
 
-    return res.json(user);
+    if (req.isAuthenticated()) {
+      return res.send({
+        username,
+        email,
+        id: req.user.user_id,
+      });
+    }
   } catch (error) {
     return res.json(error);
   }
+});
+
+router.get('/profile/logout', async (req, res) => {
+  await req.logout();
+  return res.send('Successfully logged out');
 });
 
 router.put('/profile', passport.authenticate('local'), async (req, res) => {

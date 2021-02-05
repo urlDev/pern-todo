@@ -10,28 +10,30 @@ const userRouter = require('./src/routes/user');
 
 const app = express();
 
-// Middlewares
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(
-  session({
-    secret: process.env.SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      // One day in ms
-      maxAge: 86_400_000,
-      secure: true,
-    },
+  cors({
+    // putting origin here is important
+    // no slash afterwards!
+    // credentials are important
+    credentials: true,
+    origin: 'http://localhost:3000', // <-- React app location
   })
 );
-passportConfig(passport);
-
-// Cookie parser secret same with session
+// same secret with session
 app.use(cookieParser(process.env.SECRET));
+app.enable('trust proxy');
+app.use(
+  session({
+    secret: process.env.SECRET,
+    resave: true,
+    saveUninitialized: true,
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
+passportConfig(passport);
 
 app.use(userRouter);
 app.use(todoRouter);

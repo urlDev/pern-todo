@@ -1,33 +1,9 @@
 import React from 'react';
+import { UserContext } from '../Context';
 import EditTodo from './EditTodo';
 
 const ListTodo = () => {
-  const [todos, setTodos] = React.useState([]);
-
-  const getTodos = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/todos');
-      const json = await response.json();
-
-      setTodos(json);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const deleteTodo = async (id) => {
-    try {
-      await fetch(`http://localhost:5000/todos/${id}`, {
-        method: 'DELETE',
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  React.useEffect(() => {
-    getTodos();
-  }, [todos]);
+  const { todos, deleteTodo } = React.useContext(UserContext);
 
   return (
     <table className="table table-bordered mt-5">
