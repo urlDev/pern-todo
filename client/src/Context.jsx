@@ -6,6 +6,12 @@ export const UserContext = React.createContext({});
 const Context = (props) => {
   const [user, setUser] = React.useState({});
   const [todos, setTodos] = React.useState([]);
+  const [description, setDescription] = React.useState('');
+
+  React.useEffect(() => {
+    getUser();
+    getTodos();
+  }, [todos.length]);
 
   const getUser = async () => {
     try {
@@ -25,8 +31,25 @@ const Context = (props) => {
         withCredentials: true,
       });
       setUser({});
+      setTodos([]);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const addTodo = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(
+        'http://localhost:5000/todos',
+        { description },
+        { withCredentials: true }
+      );
+
+      getTodos();
+      setDescription('');
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -54,14 +77,19 @@ const Context = (props) => {
     }
   };
 
-  React.useEffect(() => {
-    getUser();
-    getTodos();
-  }, [user.username]);
-
   return (
     <UserContext.Provider
-      value={{ user, getUser, logOutUser, getTodos, deleteTodo, todos }}
+      value={{
+        user,
+        getUser,
+        logOutUser,
+        getTodos,
+        deleteTodo,
+        todos,
+        addTodo,
+        description,
+        setDescription,
+      }}
     >
       {props.children}
     </UserContext.Provider>

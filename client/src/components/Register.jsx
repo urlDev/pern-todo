@@ -1,7 +1,9 @@
 import React from 'react';
 import axios from 'axios';
+import { UserContext } from '../Context';
 
 const Register = () => {
+  const { getUser, getTodos } = React.useContext(UserContext);
   const initialState = {
     username: '',
     email: '',
@@ -23,7 +25,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
+      await axios.post(
         `http://localhost:5000/profile/register`,
 
         { username, email, password },
@@ -32,7 +34,8 @@ const Register = () => {
         }
       );
 
-      console.log(response);
+      getUser();
+      getTodos();
       setInput(initialState);
     } catch (error) {
       console.log(error);

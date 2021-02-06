@@ -1,31 +1,15 @@
 import React from 'react';
-import axios from 'axios';
+import { UserContext } from '../Context';
 
 const InputTodo = () => {
-  const [description, setDescription] = React.useState('');
-
-  const onSubmitForm = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await axios.post(
-        'http://localhost:5000/todos',
-        { description },
-        { withCredentials: true }
-      );
-
-      console.log(response);
-
-      setDescription('');
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const { addTodo, description, setDescription } = React.useContext(
+    UserContext
+  );
 
   return (
     <>
       <h1 className="mt-5 text-center">Pern ToDo List</h1>
-      <form className="d-flex mt-5" onSubmit={onSubmitForm}>
+      <form className="d-flex mt-5" onSubmit={addTodo}>
         <input
           type="text"
           className="form-control"

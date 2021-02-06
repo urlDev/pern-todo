@@ -3,7 +3,7 @@ import axios from 'axios';
 import { UserContext } from '../Context';
 
 const Login = () => {
-  const { getUser } = React.useContext(UserContext);
+  const { getUser, getTodos } = React.useContext(UserContext);
   const initialState = {
     username: '',
     email: '',
@@ -25,7 +25,7 @@ const Login = () => {
       });
 
       getUser();
-
+      getTodos();
       setInput(initialState);
     } catch (error) {
       console.log(error);
