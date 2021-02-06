@@ -1,14 +1,16 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const passportConfig = require('./src/utils/passport');
 const todoRouter = require('./src/routes/todo');
 const userRouter = require('./src/routes/user');
 
 const app = express();
+
+require('./src/utils/passport');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -18,9 +20,15 @@ app.use(
     // no slash afterwards!
     // credentials are important
     credentials: true,
-    origin: 'http://localhost:3000', // <-- React app location
+    origin: process.env.ORIGIN || 'http://localhost:3000', // <-- React app location
   })
 );
+
+if (process.env.NODE_ENV === 'production') {
+  // serving the build folder from react
+  app.use(express.static(path.join(__dirname, 'client/build')));
+}
+
 // same secret with session
 app.use(cookieParser(process.env.SECRET));
 app.enable('trust proxy');
@@ -33,11 +41,12 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-passportConfig(passport);
 
 app.use(userRouter);
 app.use(todoRouter);
 
-app.listen(5000, () => {
-  console.log('Listening on 5000');
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });
+
+module.exports = app;

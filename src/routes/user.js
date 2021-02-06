@@ -4,26 +4,27 @@ const pool = require('../db/db');
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
 
-router.post('/profile/register', async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
+router.post(
+  '/profile/register',
+  passport.authenticate('register'),
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.send('Could not find user');
+      }
 
-    const hashedPassword = await bcrypt.hash(password, 8);
-
-    const user = await pool.query(
-      'INSERT INTO users (username, email, password) VALUES($1, $2, $3) RETURNING *',
-      [username, email, hashedPassword]
-    );
-
-    return res.send(user.rows[0]);
-  } catch (error) {
-    return res.json(error.message);
+      req.login(req.user, () => {
+        return res.send(req.user);
+      });
+    } catch (error) {
+      return res.send(error);
+    }
   }
-});
+);
 
 router.post(
   '/profile/login',
-  passport.authenticate('local'),
+  passport.authenticate('login'),
   async (req, res) => {
     try {
       if (!req.user) {
@@ -60,7 +61,7 @@ router.get('/profile/logout', async (req, res) => {
   return res.send('Successfully logged out');
 });
 
-router.put('/profile', passport.authenticate('local'), async (req, res) => {
+router.put('/profile', async (req, res) => {
   try {
     const { id } = req.user;
     const { username, email, password } = req.body;
@@ -78,9 +79,9 @@ router.put('/profile', passport.authenticate('local'), async (req, res) => {
   }
 });
 
-router.delete('/profile', passport.authenticate('local'), async (req, res) => {
+router.delete('/profile/:id', async (req, res) => {
   try {
-    const { id } = req.user;
+    const { id } = req.params;
     // Deleting all todos belongs to this user
     await pool.query('DELETE FROM todo WHERE user_id = $1', [id]);
 

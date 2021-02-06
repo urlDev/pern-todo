@@ -15,7 +15,7 @@ const Context = (props) => {
 
   const getUser = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/profile', {
+      const response = await axios.get('/profile', {
         withCredentials: true,
       });
 
@@ -27,7 +27,7 @@ const Context = (props) => {
 
   const logOutUser = async () => {
     try {
-      await axios.get('http://localhost:5000/profile/logout', {
+      await axios.get('/profile/logout', {
         withCredentials: true,
       });
       setUser({});
@@ -40,11 +40,7 @@ const Context = (props) => {
   const addTodo = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(
-        'http://localhost:5000/todos',
-        { description },
-        { withCredentials: true }
-      );
+      await axios.post('/todos', { description }, { withCredentials: true });
 
       getTodos();
       setDescription('');
@@ -55,7 +51,7 @@ const Context = (props) => {
 
   const getTodos = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/todos', {
+      const response = await axios.get('/todos', {
         withCredentials: true,
       });
 
@@ -67,7 +63,7 @@ const Context = (props) => {
 
   const deleteTodo = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/todos/${id}`, {
+      const response = await axios.delete(`/todos/${id}`, {
         withCredentials: true,
       });
 
