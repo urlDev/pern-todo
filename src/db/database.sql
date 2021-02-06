@@ -7,14 +7,14 @@ CREATE TABLE todo (
     -- Primary key is for making it unique
     todo_id SERIAL PRIMARY KEY,
     -- Max character in 255
-    description VARCHAR(255)
+    description VARCHAR(255),
     user_id SERIAL NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(user_id) DELETE CASCADE
-)
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
 
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username TEXT,
     email TEXT NOT NULL,
     password TEXT NOT NULL,
-)
+);
