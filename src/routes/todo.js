@@ -24,6 +24,8 @@ router.post('/todos', async (req, res) => {
 
       return res.json(newTodo.rows[0]);
     }
+
+    return res.send({ error: 'Not authenticated' });
   } catch (error) {
     return res.send(error);
   }
